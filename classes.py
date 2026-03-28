@@ -8,13 +8,14 @@ class Field:
     def __str__(self):
         return str(self.value)
 
-@dataclass
 class Name(Field):
-    name: str
+    pass
 
-@dataclass
 class Phone(Field):
-    phone: str = "Empty"
+    def __init__(self, value: str):
+        if not (len(value) == 10 and value.isdigit()):
+            raise ValueError("Phone number must contain exactly 10 digits.")
+        super().__init__(value)
 
 @dataclass
 class Record:
@@ -61,8 +62,6 @@ class AddressBook(UserDict):
     def delete(self, name: str):
         if name in self.data:
             del self.data[name]
-
-
 
 # TESTING 
 book = AddressBook()

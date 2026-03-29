@@ -1,9 +1,8 @@
 from collections import UserDict
-from dataclasses import dataclass, field
 
-@dataclass
 class Field:
-    value: any
+    def __init__(self, value: str):
+        self.value = value
 
     def __str__(self):
         return str(self.value)
@@ -17,44 +16,39 @@ class Phone(Field):
             raise ValueError("Phone number must contain exactly 10 digits.")
         super().__init__(value)
 
-@dataclass
 class Record:
-    name: Name
-    phones: list[Phone] = field(default_factory=list)
+    def __init__(self, name: str):
+        self.name = Name(name)
+        self.phones = []
 
     def add_phone(self, number: str):
         self.phones.append(Phone(number))
 
     def remove_phone(self, number: str):
-        self.phones = list(filter(lambda p: p != number, self.phones))
+        self.phones = list(filter(lambda phone: phone.value != number, self.phones))
     
     def edit_phone(self, old_number: str, new_number: str):
-        phone = self.find_phone(old_number)
-        if phone:
-            phone = new_number
-        else:
+        old_phone_number = self.find_phone(old_number)
+        if not old_phone_number:
             print(f"Phone number {old_number} not found.")
             return
+        new_phone_number = Phone(new_number)
+        old_phone_number.value = new_phone_number.value
     
     def find_phone(self, number: str):
-        phone = next(filter(lambda p: p == number, self.phones), None)
-        if phone:
-            return phone
-        else: 
-            print(f"Phone number not found.")
-            return
-
+        for phone in self.phones:
+            if phone.value == number:
+                return phone
+        return None
 
     def __str__(self):
         return f"Contact name: {self.name}, phones: {'; '.join(p.value for p in self.phones)}"
 
 
-@dataclass
 class AddressBook(UserDict):
-    data: dict[str, str] = field(default_factory=dict)
 
     def add_record(self, record: Record):
-        self.data[record.name] = record
+        self.data[record.name.value] = record
 
     def find(self, name: str) -> Record:
         return self.data.get(name)
